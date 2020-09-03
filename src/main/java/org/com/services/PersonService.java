@@ -24,6 +24,7 @@ import org.com.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
 
 /**
  * A Renseigner.
@@ -36,8 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersonService
 {
    @Autowired
-   private PersonDao personDao;
-   
+   public PersonDao personDao;
    /**
     * 
     * @param email
@@ -52,6 +52,29 @@ public class PersonService
          throw new Exception( "email is not valid " + email );
       }
       return personDao.getByEmail( email );
+   }
+   
+   @Transactional(readOnly = true, rollbackFor = Exception.class)
+   public List<Person> loadAll()
+   {
+      return personDao.findAll();
+   }
+   
+   @Transactional(readOnly = false, rollbackFor = Exception.class)
+   public Person save( Person person )
+   {
+      return personDao.save( person );
+   }
+   
+   @Transactional(readOnly = true, rollbackFor = Exception.class)
+   public Person byId( Integer id )
+   {
+      Optional<Person> opt = personDao.findById( id );
+      if( opt.isPresent() )
+      {
+         return opt.get();
+      }
+      return null;
    }
    
    private boolean validateEmail( String email )
